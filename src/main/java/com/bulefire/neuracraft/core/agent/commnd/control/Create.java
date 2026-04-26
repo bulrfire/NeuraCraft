@@ -35,8 +35,8 @@ public class Create extends FullCommand.AbsCommand {
         String sModel = StringArgumentType.getString(commandContext, "chatModel");
         String playerName = Objects.requireNonNull(commandContext.getSource().getPlayer()).getName().getString();
         UUID playerUUID = commandContext.getSource().getPlayer().getUUID();
-        var agentManger = AgentController.getAgentManager();
-        var playerManager = AgentController.getPlayerManager();
+        var agentManger = AgentController.getInstance().getAgentManager();
+        var playerManager = AgentController.getInstance().getPlayerManager();
 
         Agent agent;
         try {

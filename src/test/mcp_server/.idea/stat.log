@@ -329,3 +329,11 @@
 {"ts":1770995832027,"action":"IDE_ACTIVATED"}
 {"ts":1770999307015,"action":"IDE_DEACTIVATED"}
 {"ts":1771000146036,"action":"IDE_ACTIVATED"}
+{"ts":1771377544095,"action":"IDE_ACTIVATED"}
+{"ts":1771377544952,"action":"FILE_OPENED","file":"/main-sse.py","tags":{"FILE_LINE_OF_CODE":"27"}}
+{"ts":1771377547838,"action":"PROJECT_OPENED","tags":{"PROJECT_NAME":"mcp_server"}}
+{"ts":1771377558282,"action":"IDE_DEACTIVATED"}
+{"ts":1771377558330,"action":"IDE_ACTIVATED"}
+{"ts":1771377558565,"action":"IDE_DEACTIVATED"}
+{"ts":1771377576514,"action":"IDE_ACTIVATED"}
+{"ts":1771377578520,"action":"PROJECT_CLOSED","tags":{"PROJECT_NAME":"mcp_server"}}

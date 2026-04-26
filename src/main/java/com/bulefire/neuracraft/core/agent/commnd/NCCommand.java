@@ -15,7 +15,7 @@ import net.minecraft.commands.Commands;
 
 public class NCCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> getCommands() {
-        return AgentController.getGAME_COMMAND().getAgentBaseCommand()
+        return AgentController.getInstance().getGAME_COMMAND().getAgentBaseCommand()
                               .requires(source -> source.hasPermission(0))
                               .executes(new AgentCommand())
                               .then(Commands.literal("create")

@@ -93,9 +93,9 @@ public class YinYing extends AbsAgent {
     public static void init() {
         log.info("YinYing init");
         YinYingConfig.init();
-        AgentController.registerAgentClassInitFunction(
+        AgentController.getInstance().registerAgentClassInitFunction(
                 () -> {
-                    var agentManager = AgentController.getAgentManager();
+                    var agentManager = AgentController.getInstance().getAgentManager();
                     agentManager.registerAgentMapping("YinYing", YinYing::newInstance);
                     agentManager.registerAgentPathConsumer(
                             path -> {
@@ -109,7 +109,7 @@ public class YinYing extends AbsAgent {
         );
         // 注册命令!
         // region yinying subcommand
-        var commands = AgentController.getGAME_COMMAND();
+        var commands = AgentController.getInstance().getGAME_COMMAND();
         //commands.registerCommand(
         commands.getPluginBaseCommand()
                 .then(Commands.literal("yinying")
@@ -175,8 +175,8 @@ public class YinYing extends AbsAgent {
         String playerName = Objects.requireNonNull(commandContext.getSource().getPlayer()).getName().getString();
         UUID playerUUID = commandContext.getSource().getPlayer().getUUID();
         APlayer player = new APlayer(playerName, playerUUID);
-        var agentManger = AgentController.getAgentManager();
-        var playerManager = AgentController.getPlayerManager();
+        var agentManger = AgentController.getInstance().getAgentManager();
+        var playerManager = AgentController.getInstance().getPlayerManager();
         var agentUUID = playerManager.getPlayerAgentUUID(player);
         return agentManger.getAgent(agentUUID);
     }

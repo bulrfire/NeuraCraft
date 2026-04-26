@@ -14,7 +14,7 @@ public class ListAgents extends FullCommand.AbsCommand {
     @Override
     public int run(@NotNull CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
         MutableComponent component = Component.literal("");
-        for (Agent agent : AgentController.getAgentManager().getAllAgents()) {
+        for (Agent agent : AgentController.getInstance().getAgentManager().getAllAgents()) {
             var join = Component.literal("join in")
                                 .withStyle(style -> style
                                         .withColor(TextColor.parseColor("#FF69B4"))

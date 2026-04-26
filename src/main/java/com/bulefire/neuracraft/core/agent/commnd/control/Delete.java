@@ -24,8 +24,8 @@ public class Delete extends FullCommand.AbsCommand {
         String playerName = Objects.requireNonNull(commandContext.getSource().getPlayer()).getName().getString();
         UUID playerUUID = commandContext.getSource().getPlayer().getUUID();
         var player = new APlayer(playerName, playerUUID);
-        var agentManager = AgentController.getAgentManager();
-        var playerManager = AgentController.getPlayerManager();
+        var agentManager = AgentController.getInstance().getAgentManager();
+        var playerManager = AgentController.getInstance().getPlayerManager();
         String agentName;
         UUID agentUUID;
         Agent agent;

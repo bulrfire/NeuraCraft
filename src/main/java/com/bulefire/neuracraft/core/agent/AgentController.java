@@ -15,7 +15,6 @@ import com.bulefire.neuracraft.core.agent.entity.AgentResponse;
 import com.bulefire.neuracraft.core.command.GameCommand;
 import com.bulefire.neuracraft.core.config.NCMainConfig;
 import com.bulefire.neuracraft.core.mcp.MCPController;
-import com.bulefire.neuracraft.core.mcp.MCPTool;
 import com.bulefire.neuracraft.core.util.AgentOutOfTime;
 import com.bulefire.neuracraft.core.util.UnSupportFormattedMessage;
 import lombok.Getter;
@@ -106,20 +105,34 @@ public class AgentController {
     public static String fullRecommendedPrompt;
     // endregion
     @Getter
-    private static final AgentManager agentManager = new AgentManager();
+    private final AgentManager agentManager;
     @Getter
-    private static final PlayerManager playerManager = new PlayerManager();
+    private final PlayerManager playerManager;
     @Getter
-    private static final GameCommand GAME_COMMAND = GameCommand.getINSTANCE();
+    private final GameCommand GAME_COMMAND;
     @Getter
-    private static final MCPController mcpController = MCPController.getInstance();
+    private final MCPController mcpController;
     
-    private static final List<Runnable> agentClassInitFunctions = Collections.synchronizedList(new ArrayList<>());
+    private final List<Runnable> agentClassInitFunctions;
     
     @Setter
-    private static String prefix = NCMainConfig.getPrefix();
+    private String prefix;
     
-    private static final ExecutorService executor = Executors.newFixedThreadPool(Math.max(1, NCMainConfig.getThreadsNumber()));
+    private final ExecutorService executor;
+    
+    public static final AgentController INSTANCE = new AgentController();
+    private AgentController() {
+        agentManager = new AgentManager();
+        playerManager = new PlayerManager();
+        GAME_COMMAND = GameCommand.getINSTANCE();
+        mcpController = MCPController.getInstance();
+        agentClassInitFunctions = Collections.synchronizedList(new ArrayList<>());
+        prefix = NCMainConfig.getPrefix();
+        executor = Executors.newFixedThreadPool(Math.max(1, NCMainConfig.getThreadsNumber()));
+    }
+    public static AgentController getInstance() {
+        return INSTANCE;
+    }
     
     /**
      * 注册一个 Agent 类初始化逻辑
@@ -128,7 +141,7 @@ public class AgentController {
      * @see Runnable
      * @see AgentController#agentClassInitFunctions
      */
-    public static synchronized void registerAgentClassInitFunction(Runnable fun) {
+    public synchronized void registerAgentClassInitFunction(Runnable fun) {
         log.debug("register agent class init function {}", fun);
         agentClassInitFunctions.add(fun);
     }
@@ -138,15 +151,15 @@ public class AgentController {
         
         log.debug("register to chatEvent");
         // 监听聊天事件
-        ChatEventProcesser.registerFun(AgentController::onMessage);
+        ChatEventProcesser.registerFun(getInstance()::onMessage);
         // 监听玩家加入事件
         PlayerJoinEventProcesser.registerFun(
                 (msg) -> {
                     // 将玩家加入管，注意到manager不会覆盖原有值,因此与从配置文件添加的玩家不冲突
-                    playerManager.addPlayer(msg.player(), PlayerManager.emptyUUID);
+                    getInstance().playerManager.addPlayer(msg.player(), PlayerManager.emptyUUID);
                     String message = NCMainConfig.getPrefix() + msg.player().toFormatedString() + "join the game..";
                     // 稍加处理即可
-                    onMessage(
+                    getInstance().onMessage(
                             new ChatEventProcesser.ChatMessage(
                                     message,
                                     msg.player(),
@@ -160,39 +173,39 @@ public class AgentController {
                 (msg) -> {
                     // 稍加处理即可
                     String message = NCMainConfig.getPrefix() + msg.player().toFormatedString() + "exit the game..";
-                    onMessage(
+                    getInstance().onMessage(
                             new ChatEventProcesser.ChatMessage(
                                     message,
                                     msg.player(),
                                     msg.env()
                             )
                     );
-                    playerManager.removePlayer(msg.player());
+                    getInstance().playerManager.removePlayer(msg.player());
                 }
         );
         // 监听服务器关闭事件
         // 保存所有Agent
         ServerStoppingEventProcesser.registerFun(
-                AgentController::saveAllAgentToFile
+                getInstance()::saveAllAgentToFile
         );
         // 监听世界加载事件
         // 先加载agent
         // 加载所有Agent
         LevelLoadEventProcess.registerFun(
-                AgentController::loadAllAgentFromFile
+                getInstance()::loadAllAgentFromFile
         );
         // 加载玩家到 player manager
         LevelLoadEventProcess.registerFun(
                 () -> {
                     // 加载玩家到 player manager
-                    playerManager.loadPlayerFromAgentManager(agentManager);
+                    getInstance().playerManager.loadPlayerFromAgentManager(getInstance().agentManager);
                 }
         );
         // 监听世界卸载事件
         // 保存所有Agent
         // 卸载所有Agent
         LevelUnloadEventProcess.registerFun(
-                AgentController::saveAllAgentToFile
+                getInstance()::saveAllAgentToFile
         );
         
         // 注册我们自己的指令
@@ -207,7 +220,7 @@ public class AgentController {
         
         // 构建MCP的提示词供Agent使用
         StringBuilder sb = new StringBuilder();
-        for (var mcps : mcpController.getMcpManager().getTools()) {
+        for (var mcps : getInstance().mcpController.getMcpManager().getTools()) {
             for (var mcp : mcps) {
                 sb.append(mcp.getPrompt()).append("\n");
             }
@@ -238,7 +251,7 @@ public class AgentController {
         }
         
         // 执行所有Agent类的初始化逻辑
-        List<Runnable> copy = new ArrayList<>(agentClassInitFunctions);
+        List<Runnable> copy = new ArrayList<>(getInstance().agentClassInitFunctions);
         log.debug("all functions {}", copy);
         for (Runnable fun : copy) {
             log.debug("Running agent class init function {}", fun);
@@ -246,22 +259,22 @@ public class AgentController {
         }
         // 加载所有的指令
         //CommandRegister.registerCommands(agentGameCommand.getAllCommands());
-        CommandRegister.registerCommands(GAME_COMMAND.getAllCommands());
+        CommandRegister.registerCommands(getInstance().GAME_COMMAND.getAllCommands());
     }
     
     public static void afterInit() {
         // 加载所有Agent,必须在Agent类加载完后加载,否则无法注入Function
-        loadAllAgentFromFile();
+        getInstance().loadAllAgentFromFile();
         // 加载玩家
-        playerManager.loadPlayerFromAgentManager(agentManager);
+        getInstance().playerManager.loadPlayerFromAgentManager(getInstance().agentManager);
     }
     
-    public static void onMessage(@NotNull ChatEventProcesser.ChatMessage chatMessage) {
+    public void onMessage(@NotNull ChatEventProcesser.ChatMessage chatMessage) {
         executor.submit(() -> AsyncMessage(chatMessage));
     }
     
     // 消息入口
-    private static void AsyncMessage(@NotNull ChatEventProcesser.ChatMessage chatMessage) {
+    private void AsyncMessage(@NotNull ChatEventProcesser.ChatMessage chatMessage) {
         if (! chatMessage.msg().startsWith(prefix))
             return;
         String msg = chatMessage.msg().substring(prefix.length());
@@ -387,7 +400,7 @@ public class AgentController {
     
     // 这应该是一个一异步方法....
     // 调用这个方法的人应该确保自己获取了对应agent的锁....
-    private static @NotNull AgentResponse mcpCall(@NotNull Agent agent, @NotNull AgentResponse startResponse, Consumer<Component> print) {
+    private @NotNull AgentResponse mcpCall(@NotNull Agent agent, @NotNull AgentResponse startResponse, Consumer<Component> print) {
         log.debug("AgentController MCP call start");
         AgentResponse agentResponse;
         do {
@@ -406,7 +419,7 @@ public class AgentController {
         return path;
     }
     
-    private static void loadAllAgentFromFile() {
+    private void loadAllAgentFromFile() {
         List<Path> paths;
         try {
             // 获取所有文件
@@ -435,7 +448,7 @@ public class AgentController {
         }
     }
     
-    private static void saveAllAgentToFile() {
+    private void saveAllAgentToFile() {
         for (Agent agent : agentManager.getAllAgents()) {
             agent.saveToFile(
                     // path/to/world/agent/<modelName>/<uuid>.<suffix>

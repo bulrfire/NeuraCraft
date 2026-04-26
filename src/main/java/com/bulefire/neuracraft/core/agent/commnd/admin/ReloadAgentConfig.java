@@ -15,7 +15,7 @@ import java.util.UUID;
 public class ReloadAgentConfig extends FullCommand.AbsCommand {
     @Override
     public int run(@NotNull CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
-        var agentManager = AgentController.getAgentManager();
+        var agentManager = AgentController.getInstance().getAgentManager();
         String agentName;
         UUID agentUUID;
         try {

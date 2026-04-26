@@ -412,7 +412,7 @@ public abstract class AbsAgent implements Agent {
         constructor.setAccessible(true);
         A agent = constructor.newInstance(data);
         // 固定 NPC
-        var agentManager = AgentController.getAgentManager();
+        var agentManager = AgentController.getInstance().getAgentManager();
         // 替换
         agentManager.addAgent(agent);
         agentManager.removeAgent(this.getUUID());

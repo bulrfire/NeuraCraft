@@ -64,9 +64,9 @@ public class DeepSeek extends AbsAgent {
     public static void init() {
         log.info("DeepSeek static init");
         DeepSeekConfig.init();
-        AgentController.registerAgentClassInitFunction(
+        AgentController.getInstance().registerAgentClassInitFunction(
                 () -> {
-                    var agentManager = AgentController.getAgentManager();
+                    var agentManager = AgentController.getInstance().getAgentManager();
                     agentManager.registerAgentMapping("DeepSeek", DeepSeek::newInstance);
 
                     agentManager.registerAgentPathConsumer(

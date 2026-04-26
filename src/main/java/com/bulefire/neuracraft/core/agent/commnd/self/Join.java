@@ -24,8 +24,8 @@ public class Join extends FullCommand.AbsCommand {
         new Exit().run(commandContext);
         String playerName = Objects.requireNonNull(commandContext.getSource().getPlayer()).getName().getString();
         UUID playerUUID = Objects.requireNonNull(commandContext.getSource().getPlayer()).getUUID();
-        var agentManager = AgentController.getAgentManager();
-        var playerManager = AgentController.getPlayerManager();
+        var agentManager = AgentController.getInstance().getAgentManager();
+        var playerManager = AgentController.getInstance().getPlayerManager();
         var player = new APlayer(playerName, playerUUID);
         Agent agent;
         String agentName;

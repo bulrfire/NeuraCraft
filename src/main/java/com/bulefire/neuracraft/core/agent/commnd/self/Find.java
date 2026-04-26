@@ -23,8 +23,8 @@ public class Find extends FullCommand.AbsCommand {
         UUID playerUUID = Objects.requireNonNull(commandContext.getSource().getPlayer()).getUUID();
 
         var player = new APlayer(playerName, playerUUID);
-        var agentManager = AgentController.getAgentManager();
-        var playerManager = AgentController.getPlayerManager();
+        var agentManager = AgentController.getInstance().getAgentManager();
+        var playerManager = AgentController.getInstance().getPlayerManager();
         var agent = agentManager.getAgent(playerManager.getPlayerAgentUUID(player));
 
         if (agent == null) {

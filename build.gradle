@@ -269,6 +269,8 @@ dependencies {
     jarJar('com.fasterxml.jackson.core:jackson-annotations:[2.15.2,)')
     jarJar('com.fasterxml.jackson.core:jackson-core:[2.15.2,)')
 
+    implementation 'com.volcengine:volcengine-java-sdk-ark-runtime:0.2.48'
+
     testImplementation platform('org.junit:junit-bom:6.1.0-M1')
     testImplementation 'org.junit.jupiter:junit-jupiter:6.1.0-M1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:6.1.0-M1'

@@ -22,8 +22,8 @@ public class Exit extends FullCommand.AbsCommand {
     public int run(@NotNull CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
         String playerName = Objects.requireNonNull(commandContext.getSource().getPlayer()).getName().getString();
         UUID playerUUID = Objects.requireNonNull(commandContext.getSource().getPlayer()).getUUID();
-        var agentManager = AgentController.getAgentManager();
-        var playerManager = AgentController.getPlayerManager();
+        var agentManager = AgentController.getInstance().getAgentManager();
+        var playerManager = AgentController.getInstance().getPlayerManager();
         var player = new APlayer(playerName, playerUUID);
         var agentUUID = playerManager.getPlayerAgentUUID(player);
         if (agentUUID == null) {
